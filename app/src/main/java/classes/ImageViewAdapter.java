@@ -50,11 +50,6 @@ public class ImageViewAdapter extends BaseAdapter {
         if (convertView == null) { // if it's a new iv
             iv = this.imageList.get(position);
             iv.setLayoutParams(new GridView.LayoutParams(gridView.getColumnWidth(), gridView.getColumnWidth()));
-            /*ColorDrawable drawable = (ColorDrawable) this.imageList.get(position).getBackground(); // get color from imageList array
-            if (drawable != null)
-                iv.setBackgroundColor(drawable.getColor());
-            else
-                iv.setBackgroundColor(Color.BLACK);*/
         } else {
             iv = (ImageView) convertView;
         }

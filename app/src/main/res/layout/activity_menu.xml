@@ -32,20 +32,27 @@
         android:orientation="vertical"
         android:layout_weight="1">
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:typeface="monospace"
-        android:text="@string/new_game_btn"
-        style="@android:style/Holo.SegmentedButton"
-        android:id="@+id/new_game"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:hint="Player name"
+            android:id="@+id/player_name"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:typeface="monospace"
+            android:text="@string/new_game_btn"
+            style="@android:style/Holo.SegmentedButton"
+            android:id="@+id/new_game"/>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:typeface="monospace"
-        style="@android:style/Holo.SegmentedButton"
-        android:text="@string/high_scores_btn" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:typeface="monospace"
+            style="@android:style/Holo.SegmentedButton"
+            android:text="@string/high_scores_btn"
+            android:id="@+id/high_scores"/>
 
     </LinearLayout>
 

@@ -1,5 +1,6 @@
 package com.vincent.tetris.activities;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -8,23 +9,12 @@ import android.view.View;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.vincent.tetris.R;
-
 import java.util.ArrayList;
-import java.util.Random;
-
 import classes.ImageViewAdapter;
+import classes.Partie;
 import classes.Piece;
-import classes.Piece_I;
-import classes.Piece_J;
-import classes.Piece_L;
-import classes.Piece_O;
-import classes.Piece_S;
-import classes.Piece_T;
-import classes.Piece_Z;
 
 public class GameActivity extends AppCompatActivity {
     private int [][] gameGrid = new int[10][20];
@@ -37,22 +27,27 @@ public class GameActivity extends AppCompatActivity {
     private ImageButton rightButton;
     private ImageButton downButton;
     private ImageButton rotateButton;
-    private TextView score;
+    private Partie partie;
+    private static final String HIGH_SCORES = "HighScores";
+    private Boolean finPartie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        initGame();
+        TextView scoreView = (TextView) findViewById(R.id.score_value);
+        TextView levelView = (TextView) findViewById(R.id.level_value);
+
+        Bundle extras = getIntent().getExtras();
+        partie = new Partie(scoreView, levelView, extras.getString("playerName"));
+        partie.init(gameGrid, gridImageList, this);
+        finPartie = false;
 
         gameGridView = (GridView) findViewById(R.id.game_grid);
         myImageAdapter = new ImageViewAdapter(this, gridImageList, gameGridView);
         gameGridView.setAdapter(myImageAdapter);
 
-        // set score to zero
-        score = (TextView) findViewById(R.id.score_value);
-        score.setText("0");
 
         // set listenner to game buttons
         leftButton = (ImageButton) findViewById(R.id.left_button);
@@ -96,59 +91,22 @@ public class GameActivity extends AppCompatActivity {
                 gameGridView.setAdapter(myImageAdapter);
                 if ( pieces.isEmpty() || !pieces.get(pieces.size()-1).down(gameGrid, gridImageList, true) ) {
                     setButtonsEnabled(false); // to avoid moving a piece before it was set on game
-                    searchAndRemoveCompletedLines();
-                    pieces.add(randomPiece());
-                    pieces.get(pieces.size()-1).placer(gameGrid, gridImageList);
+                    searchAndRemoveCompletedLines(gameGrid, gridImageList, pieces);
+                    pieces.add(Piece.randomPiece());
+                    pieces.get(pieces.size()-1).placer(gameGrid, gridImageList, finPartie);
+                    if (finPartie) {
+                        // TODO : Confirmation
+                        /* Fin partie :
+                            OK : Menu Principal
+                        */
+                    }
                     setButtonsEnabled(true);
                 }
-                handler.postDelayed(this, 1000);
+                handler.postDelayed(this, partie.getTimeBetweenTwoPieces());
             }
         };
-        handler.postDelayed(r, 1000);
+        handler.postDelayed(r, partie.getTimeBetweenTwoPieces());
 
-    }
-
-    private void initGame() {
-        // init the grid images views
-        for (int i=0; i<200; i++) {
-            ImageView iv = new ImageView(this);
-            iv.setBackgroundColor(Color.BLACK);
-            gridImageList.add(iv);
-        }
-        // init the grid values
-        for (int x=0; x<10; x++)
-            for (int y=0; y<10; y++)
-                gameGrid[x][y] = 0;
-    }
-
-    private Piece randomPiece() {
-        Piece randomPiece = null;
-        Random random = new Random();
-        int num = random.nextInt(6);
-        switch (num) {
-            case 0:
-                randomPiece = new Piece_I();
-                break;
-            case 1:
-                randomPiece = new Piece_J();
-                break;
-            case 2:
-                randomPiece = new Piece_L();
-                break;
-            case 3:
-                randomPiece = new Piece_O();
-                break;
-            case 4:
-                randomPiece = new Piece_S();
-                break;
-            case 5:
-                randomPiece = new Piece_T();
-                break;
-            case 6:
-                randomPiece = new Piece_Z();
-                break;
-        }
-        return randomPiece;
     }
 
     private void setButtonsEnabled(Boolean enable) {
@@ -159,13 +117,12 @@ public class GameActivity extends AppCompatActivity {
         rotateButton.setEnabled(enable);
     }
 
-    private void searchAndRemoveCompletedLines() {
+    public void searchAndRemoveCompletedLines(int[][] gameGrid, ArrayList<ImageView> imageList, ArrayList<Piece> pieces) {
         int completedLineNb=0;
         for (int line=0; line<20; line++) {
             boolean completedLine=true;
             int column=0;
-
-            while( column<10 && true==completedLine ) {
+            while( column<10 && completedLine ) {
                 if (gameGrid[column][line] == 0)
                     completedLine = false;
                 column++;
@@ -175,13 +132,13 @@ public class GameActivity extends AppCompatActivity {
                 completedLineNb++;
                 for (int i = 0; i < 10; i++) {
                     gameGrid[i][line] = 0;
-                    gridImageList.get(line * 10 + i).setBackgroundColor(Color.BLACK);
+                    imageList.get(line * 10 + i).setBackgroundColor(Color.BLACK);
                 }
-                // .down on all pieces that are "higher" than the removed line
+                // .down on all pieces that are "higher" than the removed line (line)
                 for (int posLine=line-1; posLine>=0; posLine--) {
                     for (int ind = 0; ind < pieces.size(); ind++) {
                         if (pieces.get(ind).getPos_j() == posLine) {
-                            pieces.get(ind).down(gameGrid, gridImageList, false);
+                            pieces.get(ind).down(gameGrid, imageList, false);
                         }
                     }
                 }
@@ -189,28 +146,18 @@ public class GameActivity extends AppCompatActivity {
             }
         }
         if (completedLineNb > 0) {
-            updateScore( completedLineNb, 0 );
+            partie.updateScore(completedLineNb);
         }
-        gameGridView.setAdapter(myImageAdapter);
+        //gameGridView.setAdapter(myImageAdapter);
     }
 
-    private void updateScore( int nbCompletedLines, int level ) {
-        int score = Integer.valueOf((String) this.score.getText());
-        switch ( nbCompletedLines ) {
-            case 1:
-                score+=40; //* level;
-                break;
-            case 2:
-                score+=100;
-                break;
-            case 3:
-                score+=300;
-                break;
-            default: // 4 lines = tetris
-                score+=1200;
-        }
-        this.score.setText( String.valueOf(score) );
-    }
+    @Override
+    protected void onStop(){
+        // TODO : CONFIRMATION
+        super.onStop();
 
+        SharedPreferences highScores = getSharedPreferences(HIGH_SCORES, MODE_PRIVATE);
+        partie.saveHighScore(highScores);
+    }
 
 }

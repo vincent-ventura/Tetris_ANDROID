@@ -3,10 +3,12 @@ package classes;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.drawable.ColorDrawable;
+import android.media.Image;
 import android.util.Pair;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by Vincent on 15/05/2017.
@@ -21,16 +23,6 @@ public abstract class Piece implements mouvement, mouvement_possible {
     protected int color;
 
     public Piece () {}
-
-    public Piece(int hauteur, int largeur, int pos_i, int pos_j, int[][] matrice, int color) {
-        this.hauteur = hauteur;
-        this.largeur = largeur;
-        this.pos_i = pos_i;
-        this.pos_j = pos_j;
-        this.matrice = matrice;
-        this.matriceNum = 0;
-        this.color = color;
-    }
 
     public Piece(int hauteur, int largeur, int[][] matrice, int color) {
         this.hauteur = hauteur;
@@ -91,11 +83,17 @@ public abstract class Piece implements mouvement, mouvement_possible {
     }
 
     public void placer(int[][] game, ArrayList<ImageView> imageList) {
+        this.placer(game, imageList, false);
+    }
+
+    public void placer(int[][] game, ArrayList<ImageView> imageList, boolean finPartie) {
         for (int i=this.pos_i, x=0; x<this.largeur; i++,x++) {
             for (int j=this.pos_j, y=0; y<this.hauteur; j++, y++) {
                 if (i >= 0 && i <= 9 && j >= 0 && j <= 19 && this.matrice[x][y] == 1) {
-                    game[i][j] = 1;
+                    if (game[i][j] == 1)
+                        finPartie = true;
                     imageList.get(i + 10 * j).setBackgroundColor(this.color);
+                    game[i][j] = 1;
                 }
             }
         }
@@ -116,8 +114,6 @@ public abstract class Piece implements mouvement, mouvement_possible {
         this.effacer(game, imageList);
 
         if( this.rotate_possible(game, imageList) ) {
-            this.effacer(game,imageList);
-
             int backup_hauteur = this.hauteur;
             this.hauteur = this.largeur;
             this.largeur = backup_hauteur;
@@ -149,8 +145,6 @@ public abstract class Piece implements mouvement, mouvement_possible {
         for (int i=new_pos_i, x=0; x<largeur; i++,x++) {
             for (int j = this.pos_j, y = 0; y < hauteur; j++, y++) {
                 if (p.first[x][y] == 1 && game[i][j] == 1) {
-                    //ColorDrawable drawable = (ColorDrawable) imageList.get(j * 10 + i).getBackground(); // get color from imageList array
-                    //if (drawable.getColor() != Color.BLACK)
                     possible = false;
                 }
             }
@@ -234,4 +228,33 @@ public abstract class Piece implements mouvement, mouvement_possible {
 
     public abstract Pair<int[][], Integer> getNextMatrixRotation();
 
+    public static Piece randomPiece() {
+        Piece randomPiece = null;
+        Random random = new Random();
+        int num = random.nextInt(6);
+        switch (num) {
+            case 0:
+                randomPiece = new Piece_I();
+                break;
+            case 1:
+                randomPiece = new Piece_J();
+                break;
+            case 2:
+                randomPiece = new Piece_L();
+                break;
+            case 3:
+                randomPiece = new Piece_O();
+                break;
+            case 4:
+                randomPiece = new Piece_S();
+                break;
+            case 5:
+                randomPiece = new Piece_T();
+                break;
+            case 6:
+                randomPiece = new Piece_Z();
+                break;
+        }
+        return randomPiece;
+    }
 }

@@ -3,4 +3,5 @@
     <string name="new_game_btn">Nouvelle Partie</string>
     <string name="high_scores_btn">Meilleurs Scores</string>
     <string name="score_text">Score</string>
+    <string name="level_text">Level</string>
 </resources>

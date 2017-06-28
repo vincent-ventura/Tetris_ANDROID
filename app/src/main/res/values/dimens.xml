@@ -6,4 +6,5 @@
     <dimen name="app_name_size">40dp</dimen>
     <dimen name="score_size">15dp</dimen>
     <dimen name="score_text_size">35dp</dimen>
+    <dimen name="high_score_text_size">40dp</dimen>
 </resources>

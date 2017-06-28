@@ -13,9 +13,24 @@
         android:layout_gravity="top">
 
         <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/score_text"
+        android:gravity="center_horizontal"
+        android:textSize="@dimen/score_text_size"
+        />
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/score_text"
+            android:textSize="@dimen/score_size"
+            android:gravity="center_horizontal"
+            android:id="@+id/score_value"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/level_text"
             android:gravity="center_horizontal"
             android:textSize="@dimen/score_text_size"
             />
@@ -25,7 +40,7 @@
             android:layout_height="wrap_content"
             android:textSize="@dimen/score_size"
             android:gravity="center_horizontal"
-            android:id="@+id/score_value"/>
+            android:id="@+id/level_value"/>
 
     </LinearLayout>
 
