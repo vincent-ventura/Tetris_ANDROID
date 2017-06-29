@@ -21,6 +21,7 @@ public abstract class Piece implements mouvement, mouvement_possible {
     protected int pos_i;
     protected int pos_j;
     protected int color;
+    protected boolean endGame;
 
     public Piece () {}
 
@@ -82,38 +83,38 @@ public abstract class Piece implements mouvement, mouvement_possible {
         this.color = color;
     }
 
-    public void placer(int[][] game, ArrayList<ImageView> imageList) {
-        this.placer(game, imageList, null);
+    public void placer(int[][] game, ArrayList<Integer> colorList) {
+        this.placer(game, colorList, null);
     }
 
-    public void placer(int[][] game, ArrayList<ImageView> imageList, Partie partie) {
+    public void placer(int[][] game, ArrayList<Integer> colorList, Partie partie) {
         for (int i=this.pos_i, x=0; x<this.largeur; i++,x++) {
             for (int j=this.pos_j, y=0; y<this.hauteur; j++, y++) {
                 if (i >= 0 && i <= 9 && j >= 0 && j <= 19 && this.matrice[x][y] == 1) {
                     if (game[i][j] == 1 && partie != null)
                         partie.setEndGame(true);
-                    imageList.get(i + 10 * j).setBackgroundColor(this.color);
+                    colorList.set(i + 10 * j, this.color);
                     game[i][j] = 1;
                 }
             }
         }
     }
 
-    public void effacer(int[][] game, ArrayList<ImageView> imageList) {
+    public void effacer(int[][] game, ArrayList<Integer> colorList) {
         for (int i=this.pos_i, x=0; x<this.largeur; i++,x++) {
             for (int j=this.pos_j, y=0; y<this.hauteur; j++, y++) {
                 if ( i>=0 && i<=9 && j>=0 && j<=19 && game[i][j] == 1 && this.matrice[x][y] == 1 ) {
-                    imageList.get(i + 10 * j).setBackgroundColor(Color.BLACK);
+                    colorList.set(i + 10 * j, Color.BLACK);
                     game[i][j] = 0;
                 }
             }
         }
     }
 
-    public void rotate(int [][] game, ArrayList<ImageView> imageList) {
-        this.effacer(game, imageList);
+    public void rotate(int [][] game, ArrayList<Integer> colorList) {
+        this.effacer(game, colorList);
 
-        if( this.rotate_possible(game, imageList) ) {
+        if( this.rotate_possible(game, colorList) ) {
             int backup_hauteur = this.hauteur;
             this.hauteur = this.largeur;
             this.largeur = backup_hauteur;
@@ -127,10 +128,10 @@ public abstract class Piece implements mouvement, mouvement_possible {
                 this.pos_i -= right_depassement;
 
         }
-        this.placer(game, imageList);
+        this.placer(game, colorList);
     };
 
-    public boolean rotate_possible(int[][] game, ArrayList<ImageView> imageList) {
+    public boolean rotate_possible(int[][] game, ArrayList<Integer> colorList) {
         boolean possible = true;
         // simulate piece rotation
         int hauteur = this.largeur;
@@ -144,7 +145,7 @@ public abstract class Piece implements mouvement, mouvement_possible {
 
         for (int i=new_pos_i, x=0; x<largeur; i++,x++) {
             for (int j = this.pos_j, y = 0; y < hauteur; j++, y++) {
-                if (p.first[x][y] == 1 && game[i][j] == 1) {
+                if ( j>19 || (p.first[x][y] == 1 && game[i][j] == 1) ) {
                     possible = false;
                 }
             }
@@ -152,11 +153,11 @@ public abstract class Piece implements mouvement, mouvement_possible {
         return possible;
     };
 
-    public void left(int[][] game, ArrayList<ImageView> imageList) {
-        this.effacer(game, imageList);
+    public void left(int[][] game, ArrayList<Integer> colorList) {
+        this.effacer(game, colorList);
         if( this.left_possible(game) )
             this.pos_i--;
-        this.placer(game, imageList);
+        this.placer(game, colorList);
     }
 
     public boolean left_possible(int[][] game) {
@@ -176,11 +177,11 @@ public abstract class Piece implements mouvement, mouvement_possible {
     }
 
 
-    public void right(int[][] game, ArrayList<ImageView> imageList) {
-        this.effacer(game,imageList);
+    public void right(int[][] game, ArrayList<Integer> colorList) {
+        this.effacer(game,colorList);
         if (this.right_possible(game))
             this.pos_i++;
-        this.placer(game, imageList);
+        this.placer(game, colorList);
     }
 
     public boolean right_possible(int[][] game){
@@ -199,14 +200,14 @@ public abstract class Piece implements mouvement, mouvement_possible {
         return possible;
     }
 
-    public boolean down(int[][] game, ArrayList<ImageView> imageList, boolean checkIfPossible) {
-        this.effacer(game, imageList);
+    public boolean down(int[][] game, ArrayList<Integer> colorList, boolean checkIfPossible) {
+        this.effacer(game, colorList);
 
         boolean down_possible = !checkIfPossible || this.down_possible(game);
         if( down_possible )
             this.pos_j++;
 
-        this.placer(game, imageList);
+        this.placer(game, colorList);
         return down_possible;
     }
 

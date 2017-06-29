@@ -91,44 +91,38 @@ public class Partie {
     public void addCompletedLines(int lines) {
         for (int i=0; i<lines; i++){
             this.totalLines++;
-            if (String.valueOf(totalLines).endsWith("0"))
-                // new level
+            // new level every 5 completed lines
+            if ( String.valueOf(totalLines).endsWith("0") || String.valueOf(totalLines).endsWith("5") )
                 this.level = this.level + 1;
         }
         this.levelView.setText(String.valueOf(this.level));
-        this.timeBetweenTwoPieces = 500 - this.level * 10;
+        this.timeBetweenTwoPieces = 500 - this.level * 30;
     }
 
     public void updateScore(int nbCompletedLines) {
         switch ( nbCompletedLines ) {
             case 1:
-                this.score+=40; //* level;
-                this.addCompletedLines(1);
+                this.score+=(40*level); //* level;
                 break;
             case 2:
-                this.score+=100;
-                this.addCompletedLines(2);
+                this.score+=(100*level);
                 break;
             case 3:
-                this.score+=300;
-                this.addCompletedLines(3);
+                this.score+=(300*level);
                 break;
             case 4: // 4 lines = tetris
-                this.score+=1200;
-                this.addCompletedLines(4);
+                this.score+=(1200*level);
                 break;
-            default: // game start
-                System.out.println("ANORMAL BEHAVIOR");
         }
+        this.addCompletedLines(nbCompletedLines);
         this.scoreView.setText(String.valueOf(this.score));
     }
 
-    public void init(int[][] gameGrid, ArrayList<ImageView> imageList, Context context) {
+    public void init(int[][] gameGrid, ArrayList<Integer> colorList, Context context) {
         // init the grid images views
         for (int i = 0; i < 200; i++) {
             ImageView iv = new ImageView(context);
-            iv.setBackgroundColor(Color.BLACK);
-            imageList.add(iv);
+            colorList.add(Color.BLACK);
         }
         // init the grid values
         for (int x = 0; x < 10; x++)
@@ -158,7 +152,7 @@ public class Partie {
             if ( nbHighScores < lim)
                 nbHighScores++;
 
-            for (int n=nbHighScores; n>=n+1; n--) {
+            for (int n=nbHighScores; n>classement; n--) {
                     String scoreToMove = highScores.getString("score"+String.valueOf(n-1), "0");
                     String playerToMove = highScores.getString("player" + String.valueOf(n-1), null);
                     editor.putString("score"+String.valueOf(n), scoreToMove);

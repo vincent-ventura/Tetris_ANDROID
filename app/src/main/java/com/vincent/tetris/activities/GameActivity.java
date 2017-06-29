@@ -1,9 +1,7 @@
 package com.vincent.tetris.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Handler;
@@ -22,7 +20,7 @@ import classes.Piece;
 
 public class GameActivity extends AppCompatActivity {
     private int [][] gameGrid = new int[10][20];
-    private ArrayList<ImageView> gridImageList = new ArrayList<>();
+    private ArrayList<Integer> gridColorList = new ArrayList<>();
     private ArrayList<Piece> pieces = new ArrayList<Piece>();
     private GridView gameGridView;
     private ImageViewAdapter myImageAdapter;
@@ -33,7 +31,7 @@ public class GameActivity extends AppCompatActivity {
     private ImageButton rotateButton;
     private ImageButton pauseButton;
     private Partie partie;
-    private static final String HIGH_SCORES = "HighScores";
+    public static final String HIGH_SCORES_PREFS = "HighScores";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,10 +43,10 @@ public class GameActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         partie = new Partie(scoreView, levelView, extras.getString("playerName"));
-        partie.init(gameGrid, gridImageList, this);
+        partie.init(gameGrid, gridColorList, this);
 
         gameGridView = (GridView) findViewById(R.id.game_grid);
-        myImageAdapter = new ImageViewAdapter(this, gridImageList, gameGridView);
+        myImageAdapter = new ImageViewAdapter(this, gridColorList, gameGridView);
         gameGridView.setAdapter(myImageAdapter);
 
         // defines the game loop
@@ -57,14 +55,14 @@ public class GameActivity extends AppCompatActivity {
             public void run() {
                 // refresh the gridview adapter
                 gameGridView.setAdapter(myImageAdapter);
-                if ( pieces.isEmpty() || !pieces.get(pieces.size()-1).down(gameGrid, gridImageList, true) ) {
+                if ( pieces.isEmpty() || !pieces.get(pieces.size()-1).down(gameGrid, gridColorList, true) ) {
                     setButtonsEnabled(false); // to avoid moving a piece before it was set on game
-                    searchAndRemoveCompletedLines(gameGrid, gridImageList, pieces);
+                    searchAndRemoveCompletedLines(gameGrid, gridColorList, pieces);
                     pieces.add(Piece.randomPiece());
-                    pieces.get(pieces.size()-1).placer(gameGrid, gridImageList, partie);
+                    pieces.get(pieces.size()-1).placer(gameGrid, gridColorList, partie);
                     if ( partie.isEndGame() ) {
-                        showEndGame();
                         partie.setPause(true);
+                        showEndGame();
                     }
                     setButtonsEnabled(true);
                 }
@@ -84,28 +82,28 @@ public class GameActivity extends AppCompatActivity {
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pieces.get(pieces.size() - 1).left(gameGrid, gridImageList);
+                pieces.get(pieces.size() - 1).left(gameGrid, gridColorList);
                 gameGridView.setAdapter(myImageAdapter);
             }
         });
         rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pieces.get(pieces.size() - 1).right(gameGrid, gridImageList);
+                pieces.get(pieces.size() - 1).right(gameGrid, gridColorList);
                 gameGridView.setAdapter(myImageAdapter);
             }
         });
         downButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pieces.get(pieces.size() - 1).down(gameGrid, gridImageList, true);
+                pieces.get(pieces.size() - 1).down(gameGrid, gridColorList, true);
                 gameGridView.setAdapter(myImageAdapter);
             }
         });
         rotateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pieces.get(pieces.size() - 1).rotate(gameGrid, gridImageList);
+                pieces.get(pieces.size() - 1).rotate(gameGrid, gridColorList);
                 gameGridView.setAdapter(myImageAdapter);
             }
         });
@@ -137,7 +135,7 @@ public class GameActivity extends AppCompatActivity {
         rotateButton.setEnabled(enable);
     }
 
-    public void searchAndRemoveCompletedLines(int[][] gameGrid, ArrayList<ImageView> imageList, ArrayList<Piece> pieces) {
+    public void searchAndRemoveCompletedLines(int[][] gameGrid, ArrayList<Integer> imageList, ArrayList<Piece> pieces) {
         int completedLineNb=0;
         for (int line=0; line<20; line++) {
             boolean completedLine=true;
@@ -152,7 +150,7 @@ public class GameActivity extends AppCompatActivity {
                 completedLineNb++;
                 for (int i = 0; i < 10; i++) {
                     gameGrid[i][line] = 0;
-                    imageList.get(line * 10 + i).setBackgroundColor(Color.BLACK);
+                    imageList.set(line * 10 + i, Color.BLACK);
                 }
                 // .down on all pieces that are "higher" than the removed line (line)
                 for (int posLine=line-1; posLine>=0; posLine--) {
@@ -174,17 +172,18 @@ public class GameActivity extends AppCompatActivity {
     protected void onStop(){
         super.onStop();
 
-        SharedPreferences highScores = getSharedPreferences(HIGH_SCORES, MODE_PRIVATE);
+        SharedPreferences highScores = getSharedPreferences(HIGH_SCORES_PREFS, MODE_PRIVATE);
         partie.saveHighScore(highScores);
     }
 
     @Override
     public void onBackPressed() {
+        partie.setPause(true);
         confirmation();
     }
 
     public void confirmation() {
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this).setCancelable(false)
             .setTitle("Quitter")
             .setMessage("Vous allez quitter Glanced...")
             .setPositiveButton("Oui",
@@ -200,6 +199,7 @@ public class GameActivity extends AppCompatActivity {
                 {
                     public void onClick(DialogInterface dialog, int which)
                     {
+                        partie.setPause(false);
                         // AlertDialog.cancel();
                     }
                 })

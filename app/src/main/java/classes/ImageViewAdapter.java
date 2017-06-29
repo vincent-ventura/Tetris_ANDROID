@@ -18,29 +18,29 @@ import java.util.ArrayList;
  */
 public class ImageViewAdapter extends BaseAdapter {
     private Context mContext;
-    private ArrayList<ImageView> imageList; // TODO : Replace by ImageView[][] tab
+    private ArrayList<Integer> colorList; // TODO : Replace by ImageView[][] tab
     private GridView gridView;
 
-    public ImageViewAdapter(Context c, ArrayList<ImageView> imageList, GridView gridView)
+    public ImageViewAdapter(Context c, ArrayList<Integer> colorList, GridView gridView)
     {
         this.mContext = c;
-        this.imageList = imageList;
+        this.colorList = colorList;
         this.gridView = gridView;
     }
 
     @Override
     public int getCount() {
-        return imageList != null ? imageList.size() : 0;
+        return colorList != null ? colorList.size() : 0;
     }
 
     @Override
     public Object getItem(int position) {
-        return imageList != null ? imageList.get(position) : null;
+        return colorList != null ? colorList.get(position) : null;
     }
 
     @Override
     public long getItemId(int position) {
-        return imageList != null ? position : -1;
+        return colorList != null ? position : -1;
     }
 
     @Override
@@ -48,7 +48,8 @@ public class ImageViewAdapter extends BaseAdapter {
         ImageView iv = null;
 
         if (convertView == null) { // if it's a new iv
-            iv = this.imageList.get(position);
+            iv = new ImageView(mContext);
+            iv.setBackgroundColor( this.colorList.get(position) );
             iv.setLayoutParams(new GridView.LayoutParams(gridView.getColumnWidth(), gridView.getColumnWidth()));
         } else {
             iv = (ImageView) convertView;

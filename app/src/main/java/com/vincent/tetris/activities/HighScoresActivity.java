@@ -9,15 +9,13 @@ import android.widget.TextView;
 import com.vincent.tetris.R;
 
 public class HighScoresActivity extends AppCompatActivity {
-    private static final String HIGH_SCORES = "HighScores";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hight_scores);
 
         LinearLayout scoresLayout = (LinearLayout) findViewById(R.id.scoresLayout);
-        SharedPreferences highScores = getSharedPreferences(HIGH_SCORES, MODE_PRIVATE);
+        SharedPreferences highScores = getSharedPreferences(GameActivity.HIGH_SCORES_PREFS, MODE_PRIVATE);
 
         for (int i=1; i<=5; i++) {
             String player = highScores.getString("player"+String.valueOf(i), null);
@@ -30,7 +28,7 @@ public class HighScoresActivity extends AppCompatActivity {
                 TextView tv = new TextView(this);
                 String text = String.valueOf(i) + ". " + player + " : " + score;
                 tv.setLayoutParams(lparams);
-                tv.setTextSize(35);
+                tv.setTextSize(25);
                 tv.setText(text);
 
                 scoresLayout.addView(tv);
