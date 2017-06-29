@@ -1,5 +1,9 @@
 package com.vincent.tetris.activities;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Handler;
@@ -27,9 +31,9 @@ public class GameActivity extends AppCompatActivity {
     private ImageButton rightButton;
     private ImageButton downButton;
     private ImageButton rotateButton;
+    private ImageButton pauseButton;
     private Partie partie;
     private static final String HIGH_SCORES = "HighScores";
-    private Boolean finPartie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,18 +46,40 @@ public class GameActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         partie = new Partie(scoreView, levelView, extras.getString("playerName"));
         partie.init(gameGrid, gridImageList, this);
-        finPartie = false;
 
         gameGridView = (GridView) findViewById(R.id.game_grid);
         myImageAdapter = new ImageViewAdapter(this, gridImageList, gameGridView);
         gameGridView.setAdapter(myImageAdapter);
 
+        // defines the game loop
+        final Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                // refresh the gridview adapter
+                gameGridView.setAdapter(myImageAdapter);
+                if ( pieces.isEmpty() || !pieces.get(pieces.size()-1).down(gameGrid, gridImageList, true) ) {
+                    setButtonsEnabled(false); // to avoid moving a piece before it was set on game
+                    searchAndRemoveCompletedLines(gameGrid, gridImageList, pieces);
+                    pieces.add(Piece.randomPiece());
+                    pieces.get(pieces.size()-1).placer(gameGrid, gridImageList, partie);
+                    if ( partie.isEndGame() ) {
+                        showEndGame();
+                        partie.setPause(true);
+                    }
+                    setButtonsEnabled(true);
+                }
+                if ( !partie.isPause() ) {
+                    handler.postDelayed(this, partie.getTimeBetweenTwoPieces());
+                }
+            }
+        };
 
         // set listenner to game buttons
         leftButton = (ImageButton) findViewById(R.id.left_button);
         rightButton = (ImageButton) findViewById(R.id.right_button);
         downButton = (ImageButton) findViewById(R.id.down_button);
         rotateButton = (ImageButton) findViewById(R.id.rotate_button);
+        pauseButton = (ImageButton) findViewById(R.id.pause_button);
 
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,28 +109,22 @@ public class GameActivity extends AppCompatActivity {
                 gameGridView.setAdapter(myImageAdapter);
             }
         });
-
-        final Runnable r = new Runnable() {
+        pauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                // refresh the gridview adapter
-                gameGridView.setAdapter(myImageAdapter);
-                if ( pieces.isEmpty() || !pieces.get(pieces.size()-1).down(gameGrid, gridImageList, true) ) {
-                    setButtonsEnabled(false); // to avoid moving a piece before it was set on game
-                    searchAndRemoveCompletedLines(gameGrid, gridImageList, pieces);
-                    pieces.add(Piece.randomPiece());
-                    pieces.get(pieces.size()-1).placer(gameGrid, gridImageList, finPartie);
-                    if (finPartie) {
-                        // TODO : Confirmation
-                        /* Fin partie :
-                            OK : Menu Principal
-                        */
-                    }
+            public void onClick(View v) {
+                if( partie.isPause() ) { // play button pressed
+                    partie.setPause(false);
+                    handler.postDelayed(r, partie.getTimeBetweenTwoPieces());
+                    pauseButton.setImageResource(R.drawable.ic_pause_circle_fill_24dp);
                     setButtonsEnabled(true);
+                } else { // pause button pressed
+                    partie.setPause(true);
+                    pauseButton.setImageResource(R.drawable.ic_play_circle_fill_24dp);
+                    setButtonsEnabled(false);
                 }
-                handler.postDelayed(this, partie.getTimeBetweenTwoPieces());
             }
-        };
+        });
+
         handler.postDelayed(r, partie.getTimeBetweenTwoPieces());
 
     }
@@ -148,16 +168,57 @@ public class GameActivity extends AppCompatActivity {
         if (completedLineNb > 0) {
             partie.updateScore(completedLineNb);
         }
-        //gameGridView.setAdapter(myImageAdapter);
     }
 
     @Override
     protected void onStop(){
-        // TODO : CONFIRMATION
         super.onStop();
 
         SharedPreferences highScores = getSharedPreferences(HIGH_SCORES, MODE_PRIVATE);
         partie.saveHighScore(highScores);
+    }
+
+    @Override
+    public void onBackPressed() {
+        confirmation();
+    }
+
+    public void confirmation() {
+        new AlertDialog.Builder(this)
+            .setTitle("Quitter")
+            .setMessage("Vous allez quitter Glanced...")
+            .setPositiveButton("Oui",
+                new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        finish();
+                    }
+                })
+            .setNegativeButton("Non",
+                new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        // AlertDialog.cancel();
+                    }
+                })
+            .create()
+            .show();
+    }
+
+    public void showEndGame() {
+        new AlertDialog.Builder(this).setCancelable(false)
+            .setTitle("Fin de partie")
+            .setMessage(String.valueOf(partie.getScore()) + " points!")
+            .setPositiveButton("Ok",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                .create()
+                .show();
     }
 
 }

@@ -21,6 +21,8 @@ public class Partie {
     private TextView levelView;
     private int timeBetweenTwoPieces; // in ms
     private int totalLines;
+    private boolean endGame;
+    private boolean pause;
 
     public Partie(TextView scoreView, TextView levelView, String playerName) {
         this.playerName = playerName;
@@ -30,6 +32,24 @@ public class Partie {
         this.totalLines = 0;
         this.score = 0;
         this.scoreView = scoreView;
+        this.endGame = false;
+        this.pause = false;
+    }
+
+    public boolean isPause() {
+        return pause;
+    }
+
+    public void setPause(boolean pause) {
+        this.pause = pause;
+    }
+
+    public boolean isEndGame() {
+        return endGame;
+    }
+
+    public void setEndGame(boolean endGame) {
+        this.endGame = endGame;
     }
 
     public String getPlayerName() {

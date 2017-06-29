@@ -83,15 +83,15 @@ public abstract class Piece implements mouvement, mouvement_possible {
     }
 
     public void placer(int[][] game, ArrayList<ImageView> imageList) {
-        this.placer(game, imageList, false);
+        this.placer(game, imageList, null);
     }
 
-    public void placer(int[][] game, ArrayList<ImageView> imageList, boolean finPartie) {
+    public void placer(int[][] game, ArrayList<ImageView> imageList, Partie partie) {
         for (int i=this.pos_i, x=0; x<this.largeur; i++,x++) {
             for (int j=this.pos_j, y=0; y<this.hauteur; j++, y++) {
                 if (i >= 0 && i <= 9 && j >= 0 && j <= 19 && this.matrice[x][y] == 1) {
-                    if (game[i][j] == 1)
-                        finPartie = true;
+                    if (game[i][j] == 1 && partie != null)
+                        partie.setEndGame(true);
                     imageList.get(i + 10 * j).setBackgroundColor(this.color);
                     game[i][j] = 1;
                 }
