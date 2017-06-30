@@ -24,11 +24,10 @@ public class Partie {
     private boolean endGame;
     private boolean pause;
 
-    public Partie(TextView scoreView, TextView levelView, String playerName) {
+    public Partie(TextView scoreView, TextView levelView, String playerName, int level) {
         this.playerName = playerName;
-        this.level = 1;
+        this.level = level;
         this.levelView = levelView;
-        this.timeBetweenTwoPieces = 500;
         this.totalLines = 0;
         this.score = 0;
         this.scoreView = scoreView;
@@ -77,11 +76,7 @@ public class Partie {
     }
 
     public int getTimeBetweenTwoPieces() {
-        return timeBetweenTwoPieces;
-    }
-
-    public void setTimeBetweenTwoPieces(int timeBetweenTwoPieces) {
-        this.timeBetweenTwoPieces = timeBetweenTwoPieces;
+        return (500 - this.level * 20);
     }
 
     public int getTotalLines() {
@@ -96,7 +91,6 @@ public class Partie {
                 this.level = this.level + 1;
         }
         this.levelView.setText(String.valueOf(this.level));
-        this.timeBetweenTwoPieces = 500 - this.level * 30;
     }
 
     public void updateScore(int nbCompletedLines) {

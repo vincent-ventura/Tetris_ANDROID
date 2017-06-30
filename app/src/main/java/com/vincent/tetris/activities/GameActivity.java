@@ -42,7 +42,7 @@ public class GameActivity extends AppCompatActivity {
         TextView levelView = (TextView) findViewById(R.id.level_value);
 
         Bundle extras = getIntent().getExtras();
-        partie = new Partie(scoreView, levelView, extras.getString("playerName"));
+        partie = new Partie(scoreView, levelView, extras.getString("playerName"), extras.getInt("level"));
         partie.init(gameGrid, gridColorList, this);
 
         gameGridView = (GridView) findViewById(R.id.game_grid);
