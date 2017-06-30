@@ -5,9 +5,11 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Chronometer;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -32,6 +34,8 @@ public class GameActivity extends AppCompatActivity {
     private ImageButton pauseButton;
     private Partie partie;
     public static final String HIGH_SCORES_PREFS = "HighScores";
+    private Chronometer chronometer;
+    private long lastPauseChronometer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,10 +44,13 @@ public class GameActivity extends AppCompatActivity {
 
         TextView scoreView = (TextView) findViewById(R.id.score_value);
         TextView levelView = (TextView) findViewById(R.id.level_value);
+        chronometer = (Chronometer) findViewById(R.id.simpleChronometer);
 
         Bundle extras = getIntent().getExtras();
         partie = new Partie(scoreView, levelView, extras.getString("playerName"), extras.getInt("level"));
         partie.init(gameGrid, gridColorList, this);
+        chronometer.setBase(SystemClock.elapsedRealtime());
+        chronometer.start();
 
         gameGridView = (GridView) findViewById(R.id.game_grid);
         myImageAdapter = new ImageViewAdapter(this, gridColorList, gameGridView);
@@ -112,11 +119,15 @@ public class GameActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if( partie.isPause() ) { // play button pressed
                     partie.setPause(false);
+                    chronometer.setBase(chronometer.getBase() + SystemClock.elapsedRealtime() - lastPauseChronometer);
+                    chronometer.start();
                     handler.postDelayed(r, partie.getTimeBetweenTwoPieces());
                     pauseButton.setImageResource(R.drawable.ic_pause_circle_fill_24dp);
                     setButtonsEnabled(true);
                 } else { // pause button pressed
                     partie.setPause(true);
+                    lastPauseChronometer = SystemClock.elapsedRealtime();
+                    chronometer.stop();
                     pauseButton.setImageResource(R.drawable.ic_play_circle_fill_24dp);
                     setButtonsEnabled(false);
                 }

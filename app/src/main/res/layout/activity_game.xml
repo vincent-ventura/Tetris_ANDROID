@@ -42,14 +42,32 @@
             android:gravity="center_horizontal"
             android:id="@+id/level_value"/>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/time_text"
+            android:gravity="center_horizontal"
+            android:textSize="@dimen/time_text_size"
+            />
+
+
+        <Chronometer
+            android:id="@+id/simpleChronometer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:textSize="15dp"/>
+
+
         <ImageButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
             android:src="@drawable/ic_pause_circle_fill_24dp"
             android:backgroundTint="@color/colorPrimary"
             android:id="@+id/pause_button"
+            android:layout_marginTop="20dp"
             />
+
 
     </LinearLayout>
 
