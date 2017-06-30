@@ -18,7 +18,7 @@ public class Piece_L extends Piece {
     static final int[][] MATRICE_3 = { {1,0,0}, {1,1,1} };
 
     public Piece_L() {
-        super(HAUTEUR_DEPART, LARGEUR_DEPART, MATRICE_0, Color.RED);
+        super(HAUTEUR_DEPART, LARGEUR_DEPART, MATRICE_0, Color.rgb(49, 140, 231));
     }
 
     public Pair<int[][], Integer> getNextMatrixRotation() {

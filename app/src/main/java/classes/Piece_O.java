@@ -16,7 +16,7 @@ public class Piece_O extends Piece {
 
 
     public Piece_O() {
-        super(HAUTEUR_DEPART, LARGEUR_DEPART, MATRICE_0, Color.YELLOW);
+        super(HAUTEUR_DEPART, LARGEUR_DEPART, MATRICE_0, Color.rgb(255, 215, 0));
     }
 
     public Pair<int[][], Integer> getNextMatrixRotation() {

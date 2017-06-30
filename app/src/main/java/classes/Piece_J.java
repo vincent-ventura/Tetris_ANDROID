@@ -19,7 +19,7 @@ public class Piece_J extends Piece {
 
 
     public Piece_J() {
-        super(HAUTEUR_DEPART, LARGEUR_DEPART, MATRICE_0, Color.BLUE);
+        super(HAUTEUR_DEPART, LARGEUR_DEPART, MATRICE_0, Color.rgb(223,109,20));
     }
 
     public Pair<int[][], Integer> getNextMatrixRotation() {

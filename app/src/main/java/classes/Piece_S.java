@@ -16,7 +16,7 @@ public class Piece_S extends Piece {
     static final int[][] MATRICE_1 = { {1,1,0}, {0,1,1} };
 
     public Piece_S() {
-        super(HAUTEUR_DEPART, LARGEUR_DEPART, MATRICE_0, Color.GREEN);
+        super(HAUTEUR_DEPART, LARGEUR_DEPART, MATRICE_0, Color.rgb(0, 86, 27));
     }
 
     @Override

@@ -232,7 +232,7 @@ public abstract class Piece implements mouvement, mouvement_possible {
     public static Piece randomPiece() {
         Piece randomPiece = null;
         Random random = new Random();
-        int num = random.nextInt(6);
+        int num = random.nextInt(7);
         switch (num) {
             case 0:
                 randomPiece = new Piece_I();

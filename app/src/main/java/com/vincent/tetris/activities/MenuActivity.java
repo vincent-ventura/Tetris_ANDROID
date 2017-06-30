@@ -23,7 +23,7 @@ public class MenuActivity extends AppCompatActivity {
         newGameBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(MenuActivity.this, GameActivity.class);
-                String pName = TextUtils.isEmpty(playerName.getText()) ? "New Player" : playerName.getText().toString();
+                String pName = TextUtils.isEmpty(playerName.getText()) ? "Joueur1" : playerName.getText().toString();
                 intent.putExtra("playerName", pName);
                 startActivity(intent);
             }

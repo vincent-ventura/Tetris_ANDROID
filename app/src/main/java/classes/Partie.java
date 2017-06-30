@@ -110,7 +110,7 @@ public class Partie {
             case 3:
                 this.score+=(300*level);
                 break;
-            case 4: // 4 lines = tetris
+            default: // 4 lines (= tetris)
                 this.score+=(1200*level);
                 break;
         }

@@ -90,21 +90,21 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 pieces.get(pieces.size() - 1).right(gameGrid, gridColorList);
-                gameGridView.setAdapter(myImageAdapter);
+               gameGridView.setAdapter(myImageAdapter);
             }
         });
         downButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pieces.get(pieces.size() - 1).down(gameGrid, gridColorList, true);
-                gameGridView.setAdapter(myImageAdapter);
+               gameGridView.setAdapter(myImageAdapter);
             }
         });
         rotateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pieces.get(pieces.size() - 1).rotate(gameGrid, gridColorList);
-                gameGridView.setAdapter(myImageAdapter);
+               gameGridView.setAdapter(myImageAdapter);
             }
         });
         pauseButton.setOnClickListener(new View.OnClickListener() {
@@ -135,9 +135,11 @@ public class GameActivity extends AppCompatActivity {
         rotateButton.setEnabled(enable);
     }
 
-    public void searchAndRemoveCompletedLines(int[][] gameGrid, ArrayList<Integer> imageList, ArrayList<Piece> pieces) {
-        int completedLineNb=0;
-        for (int line=0; line<20; line++) {
+    public boolean searchAndRemoveCompletedLine(int[][] gameGrid, ArrayList<Integer> colorList, ArrayList<Piece> pieces) {
+        int line = 19;
+        boolean completedLineFound=false;
+
+        while (line>=0 && !completedLineFound) {
             boolean completedLine=true;
             int column=0;
             while( column<10 && completedLine ) {
@@ -147,22 +149,33 @@ public class GameActivity extends AppCompatActivity {
             }
 
             if (completedLine) {
-                completedLineNb++;
+                completedLineFound=true;
                 for (int i = 0; i < 10; i++) {
                     gameGrid[i][line] = 0;
-                    imageList.set(line * 10 + i, Color.BLACK);
+                    colorList.set(line * 10 + i, Color.BLACK);
                 }
                 // .down on all pieces that are "higher" than the removed line (line)
                 for (int posLine=line-1; posLine>=0; posLine--) {
                     for (int ind = 0; ind < pieces.size(); ind++) {
                         if (pieces.get(ind).getPos_j() == posLine) {
-                            pieces.get(ind).down(gameGrid, imageList, false);
+                            pieces.get(ind).down(gameGrid, colorList, false);
                         }
                     }
                 }
-
             }
+            line--;
         }
+
+        return completedLineFound;
+    }
+
+    public void searchAndRemoveCompletedLines(int[][] gameGrid, ArrayList<Integer> colorList, ArrayList<Piece> pieces) {
+        int completedLineNb=0;
+
+        while (searchAndRemoveCompletedLine(gameGrid, colorList, pieces)) {
+            completedLineNb++;
+        }
+
         if (completedLineNb > 0) {
             partie.updateScore(completedLineNb);
         }
@@ -178,14 +191,15 @@ public class GameActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        partie.setPause(true);
+        if ( !partie.isPause() )
+            pauseButton.callOnClick();
         confirmation();
     }
 
     public void confirmation() {
         new AlertDialog.Builder(this).setCancelable(false)
             .setTitle("Quitter")
-            .setMessage("Vous allez quitter Glanced...")
+            .setMessage("Voulez vous quitter la partie ?")
             .setPositiveButton("Oui",
                 new DialogInterface.OnClickListener()
                 {
@@ -199,7 +213,6 @@ public class GameActivity extends AppCompatActivity {
                 {
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        partie.setPause(false);
                         // AlertDialog.cancel();
                     }
                 })
