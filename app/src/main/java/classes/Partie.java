@@ -115,7 +115,6 @@ public class Partie {
     public void init(int[][] gameGrid, ArrayList<Integer> colorList, Context context) {
         // init the grid images views
         for (int i = 0; i < 200; i++) {
-            ImageView iv = new ImageView(context);
             colorList.add(Color.BLACK);
         }
         // init the grid values
@@ -124,7 +123,7 @@ public class Partie {
                 gameGrid[x][y] = 0;
 
         // update level and score view for the first time
-        this.levelView.setText("1");
+        this.levelView.setText(String.valueOf(this.level));
         this.scoreView.setText("0");
     }
 
